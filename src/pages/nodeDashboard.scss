@@ -1,0 +1,57 @@
+.dashboard {
+  justify-content: center;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.h2size {
+  // color: linear-gradient(rgb(43, 136, 4),transparent);
+  font-size: 50px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.h3size {
+  // color: linear-gradient(rgb(43, 136, 4),transparent);
+  font-size: 50px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.titleStyle {
+  // color: linear-gradient(rgb(43, 136, 4),transparent);
+  text-align: center;
+  font-size: 5vh;
+  height: 100%;
+  width: 100%;
+  margin: auto;
+  // padding: 10px;
+}
+
+.dialogTitle {
+  height: 50px;
+  padding: 0px 25px 0px 25px;
+  background-color: linear-gradient( rgb(43, 136, 4),rgb(66, 149, 31)); 
+  background: linear-gradient( rgb(43, 136, 4),rgb(66, 149, 31));
+  margin: 0px 0px 25px 0px;
+  color: white;
+  line-height: 50px;
+  text-align: center;
+}
+
+.dialogClass {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
