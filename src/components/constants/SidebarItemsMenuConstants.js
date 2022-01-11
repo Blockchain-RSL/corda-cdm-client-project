@@ -15,10 +15,10 @@ const SidebarItems = [
         name: "PartyC",
         route: '/PartyC'
     },
-    {
+    /*{
         name: "Notary",
         route: 'Notary'
-    },
+    },*/
     {
         name: "Observer",
         route: '/Observer'

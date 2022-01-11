@@ -3,6 +3,9 @@ import React from 'react';
 // libs
 import AxiosInstance from '../axios/AxiosInstance';
 
+// components
+import NodesStatusTable from '../components/table/NodesStatusTable'
+
 // css
 import './dashboard.scss';
 
@@ -13,7 +16,7 @@ class Dashboard extends React.Component {
 
         this.state = {
             nodeInfo: []
-        }; 
+        };
 
         this.loadNodeInfo = this.loadNodeInfo.bind(this);
         //this.loadNodeInfo();
@@ -21,10 +24,10 @@ class Dashboard extends React.Component {
 
     async loadNodeInfo() {
         AxiosInstance({
-            url:`peers?nodeName=Observer`
+            url: `peers?nodeName=Observer`
         }).then((response) => {
             console.log("response loadNodeInfo: ", response.data)
-            this.setState({nodeInfo: response.data})
+            this.setState({ nodeInfo: response.data })
         }).catch((error) => {
             console.log("Error into loadNodeInfo ", error)
         })
@@ -32,10 +35,14 @@ class Dashboard extends React.Component {
 
     render() {
         return (
-            <div className="app">
+            <div className="app"
+                style={{
+                    margin: "25px 25px 0px 25px"
+                }}>
                 <h2 className="titleStyle"
-                    >Welcome to CDM Corda project
+                >Welcome to CDM Corda project
                 </h2>
+                <NodesStatusTable />
             </div>
         );
     }

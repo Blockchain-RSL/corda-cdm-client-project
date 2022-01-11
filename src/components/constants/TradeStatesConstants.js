@@ -1,19 +1,19 @@
 const TradeStatesConstants = {
-        "ACCEPTED": { 
-                "name": "ACCEPTED", 
-                "color" : "green"
+        "ACCEPTED": {
+                "name": "ACCEPTED",
+                "color": "green"
         },
-        "REJECTED": { 
-                "name": "REJECTED", 
-                "color" : "red"
+        "REJECTED": {
+                "name": "REJECTED",
+                "color": "red"
         },
-        "PROPOSED": { 
-                "name": "PROPOSED", 
-                "color" : "blue"
+        "PROPOSED": {
+                "name": "PROPOSED",
+                "color": "blue"
         },
-        "INCOMING": { 
-                "name": "INCOMING", 
-                "color" : "black"
+        "INCOMING": {
+                "name": "INCOMING",
+                "color": "black"
         }
 }
 

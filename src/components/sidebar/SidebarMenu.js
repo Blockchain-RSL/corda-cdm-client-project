@@ -1,51 +1,51 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import styled from 'styled-components'
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import SidebarItems from "../constants/SidebarItemsMenuConstants";
 
-function Sidebar(props, {defaultActive,}) {
-    const location = props.history.location;
-    const lastActiveIndexString = localStorage.getItem("lastActiveIndex");
-    const lastActiveIndex = Number(lastActiveIndexString);
-    const [activeIndex, setActiveIndex] = useState(lastActiveIndex || defaultActive);
+function Sidebar(props, { defaultActive, }) {
+  const location = props.history.location;
+  const lastActiveIndexString = localStorage.getItem("lastActiveIndex");
+  const lastActiveIndex = Number(lastActiveIndexString);
+  const [activeIndex, setActiveIndex] = useState(lastActiveIndex || defaultActive);
 
-    function changeActiveIndex(newIndex) {
-        localStorage.setItem("lastActiveIndex", newIndex)
-        setActiveIndex(newIndex)
+  function changeActiveIndex(newIndex) {
+    localStorage.setItem("lastActiveIndex", newIndex)
+    setActiveIndex(newIndex)
+  }
+
+  function getPath(path) {
+    if (path.charAt(0) !== "/") {
+      return "/" + path;
     }
+    return path;
+  }
 
-    function getPath(path) {
-        if (path.charAt(0) !== "/") {
-            return  "/" + path;
+  useEffect(() => {
+    const activeItem = SidebarItems.findIndex(item => getPath(item.route) === getPath(location.pathname))
+    changeActiveIndex(activeItem);
+  }, [location])
+
+  return (
+    <SidebarParent>
+      <div>
+        {
+          SidebarItems.map((item, index) => {
+            return (
+              <Link key={item.name} to={item.route}>
+                <SidebarItem key={item.name}
+                  active={index === activeIndex}
+                >
+                  <p>{item.name}</p>
+                </SidebarItem>
+              </Link>
+            );
+          })
         }
-        return path;
-    }
-
-    useEffect(()=> {
-        const activeItem = SidebarItems.findIndex(item=> getPath(item.route) === getPath(location.pathname))
-        changeActiveIndex(activeItem);
-    }, [location])
-
-    return (
-            <SidebarParent>
-                <div>
-                  {
-                    SidebarItems.map( (item, index) => {
-                      return (
-                        <Link key={item.name} to={item.route}>
-                            <SidebarItem key={item.name}
-                                        active={index === activeIndex}
-                            >
-                              <p>{item.name}</p>
-                            </SidebarItem>
-                        </Link>
-                      );
-                    })
-                  }
-                </div>
-                <div className="behind-the-scenes"/>
-            </SidebarParent>
-    );
+      </div>
+      <div className="behind-the-scenes" />
+    </SidebarParent>
+  );
 }
 
 export default Sidebar;

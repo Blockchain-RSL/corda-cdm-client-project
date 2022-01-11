@@ -1,0 +1,17 @@
+.dialogTitle {
+    height: 50px;
+    padding: 0px 0px 0px 0px;
+    background-color: linear-gradient( rgb(43, 136, 4),rgb(66, 149, 31)); 
+    background: linear-gradient( rgb(43, 136, 4),rgb(66, 149, 31));
+    color: white;
+    line-height: 50px;
+    text-align: center;
+}
+  
+.dialogContent {
+    //lign-items: center;
+    display: flex;
+    flex-direction: column;
+    //justify-content: center;
+    margin: 25px 25px 25px 25px;
+}

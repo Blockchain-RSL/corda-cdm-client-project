@@ -8,7 +8,8 @@ function getUrlByEnv() {
 
   switch (envs) {
     case "LOCAL":
-      serverUrl = "http://localhost:8080/";
+      //serverUrl = "http://localhost:8080/";
+      serverUrl = "http://188.11.100.59:50001/";
       break;
     case "SVIA":
       break;
@@ -34,8 +35,8 @@ const AxiosInstance = axios.create({
   baseURL: getUrlByEnv(),
   headers: {
     "Content-type": "application/json",
-    'Access-Control-Allow-Origin' : '*',
-    'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
   },
 });
 

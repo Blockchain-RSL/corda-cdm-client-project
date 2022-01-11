@@ -2,17 +2,23 @@ import React from 'react';
 
 // components
 import TradeTable from '../components/table/TradeTable';
+import TradeTableHistory from '../components/table/TradeTableHistory';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 
 // css
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './nodeDashboard.scss';
+import '../components/layout/dialog.scss';
 
 // lib
 import AxiosInstance from '../axios/AxiosInstance';
-import {decode as base64_decode, encode as base64_encode} from 'base-64';
+import { encode as base64_encode } from 'base-64';
+
 
 class NodeDashboard extends React.Component {
 
@@ -23,8 +29,10 @@ class NodeDashboard extends React.Component {
             nodeName: this.props.nodeName,
             info: [],
             showDialog: false,
-            dataUpload: ""
-        }; 
+            dataUpload: "",
+            dataValidation: {},
+            indexTab: 0,
+        };
 
         this.changeUploadedFile = this.changeUploadedFile.bind(this);
         this.loadNodeInfo = this.loadNodeInfo.bind(this);
@@ -33,71 +41,75 @@ class NodeDashboard extends React.Component {
         this.loadNodeInfo();
     }
 
-    convertFileIntoBase64(cdmFile) {
-        return base64_encode(cdmFile);;
+    a11yProps(index) {
+        return {
+            id: `scrollable-auto-tab-${index}`,
+            "aria-controls": `scrollable-auto-tabpanel-${index}`
+        };
     }
-    convertFileIntoBase64andZip(cdmFile) {
-        return new Promise((resolve, reject) => {    
-            let encodedCdmFile = base64_encode(cdmFile);
-            console.log("encodedCdmFile : ", encodedCdmFile);
+
+    convertFileIntoBase64(text) {
+        return base64_encode(text);;
+    }
+
+    convertFileIntoBase64andZip(text) {
+        return new Promise((resolve, reject) => {
+            let encodedFile = base64_encode(text);
             var JSZip = require("jszip");
             var zip = new JSZip();
             resolve(
-                zip.file("cdmFile", encodedCdmFile, {binary:true})
+                zip.file("ile", encodedFile, { binary: true })
             );
-            /*zip.generateAsync({ type: 'blob' }).then(binaryData => {
-                resolve(binaryData);
-            });*/
         });
     }
 
-    async changeUploadedFile (e) {
+    async changeUploadedFile(e) {
         e.preventDefault()
         const reader = new FileReader()
-        reader.onload = async (e) => { 
-          const text = (e.target.result)
-          this.setState({dataUpload : text})
+        reader.onload = async (e) => {
+
+            const text = (e.target.result)
+            AxiosInstance({
+                method: "post",
+                url: `validateCDMJson`,
+                data: this.convertFileIntoBase64(text)
+            }).then((response) => {
+                this.setState({ dataUpload: text })
+                this.setState({ dataValidation: response.data })
+                //console.log("validateCDMJson", response.data)
+            }).catch((error) => {
+                alert("Imported trade sent with error")
+                console.log("Error into validateCDMJson ", error)
+            })
         };
         reader.readAsText(e.target.files[0])
     }
 
     async startProposal() {
-        console.log("startProposal", this.state.dataUpload)
+        //console.log("startProposal", this.state.dataUpload)
         let cdmFile = this.state.dataUpload;
 
         AxiosInstance({
-            method:"post",
-            url:`startFlowProposal/?nodeName=${this.state.nodeName}`,
+            method: "post",
+            url: `startFlowProposal/?nodeName=${this.state.nodeName}`,
             data: this.convertFileIntoBase64(cdmFile)
         }).then((response) => {
-            alert("Imported trade sent with success")
-            console.log("response startProposal: ", response)
+            //alert("Imported trade sent with success")
+            //console.log("response startProposal: ", response)
         }).catch((error) => {
             alert("Imported trade sent with error")
             console.log("Error into startProposal ", error)
         })
 
-        this.setState({showDialog : false})
+        this.setState({ showDialog: false })
     }
-    /*
-    async startProposal() {
-        AxiosInstance({
-            method:"post",
-            url:`startFlowProposal/?nodeName=${this.state.nodeName}&proposee=PartyB&instrumentType=TestInstrumentType&instrument=TestInstrumetn&quantity=10&price=0&currency=EUR&market=EUROPA`
-        }).then((response) => {
-            console.log("response startProposal: ", response)
-        }).catch((error) => {
-            console.log("Error into startProposal ", error)
-        })
-    }
-    */
 
     async loadNodeInfo() {
         AxiosInstance({
-            url:`info?nodeName=${this.state.nodeName}`
+            url: `info?nodeName=${this.state.nodeName}`
         }).then((response) => {
             //console.log("response loadNodeInfo: ", response.data)
-            this.setState({info: response.data})
+            this.setState({ info: response.data })
         }).catch((error) => {
             console.log("Error into loadNodeInfo ", error)
         })
@@ -108,84 +120,132 @@ class NodeDashboard extends React.Component {
         return (
             <React.Fragment>
                 <div className="nodeDashboard"
-                    style={{height:"100%"}}>
+                    style={{ height: "100%" }}>
                     <h2 className="titleStyle"
-                        style={{fontSize: "5vh"}}
-                        >Node {this.state.nodeName} Dashboard</h2>
+                        style={{ fontSize: "5vh" }}
+                    >Node {this.state.nodeName} Dashboard</h2>
                     &nbsp;
                     <h1 className="titleStyle"
                         style={{
-                            fontSize: "3vh"}}>
+                            fontSize: "3vh"
+                        }}>
                         {this.state.info}
                     </h1>
+
                     <div className="nodeContent"
                         style={{
-                            margin : "75px 25px 0px 25px"
+                            margin: "25px 25px 0px 25px"
                         }}>
-                        
+
+
                         {
                             (this.state.nodeName !== "Observer" && this.state.nodeName !== "Notary") && //then                                
-                                <Button 
-                                    variant= "outlined"
-                                    color = "success"
-                                    onClick={(e) => { this.setState({showDialog: true})}}
-                                >
-                                    Import Trade
-                                </Button>
-                                /*
-                                <div style = {{display:"flex"}}>
-                                <input type="file" name="file" onChange={this.startProposal} />
-                                <Button 
-                                    //as="input" type="button"
-                                    variant="outline-dark" 
-                                    size="lg"
-                                    onClick={this.startProposal}
-                                    >
-                                    Import Trade
-                                </Button>
-                                </div>
-                                */
+                            <Button
+                                variant="outlined"
+                                color="success"
+                                onClick={(e) => { this.setState({ showDialog: true }) }}
+                            >
+                                Import Trade
+                            </Button>
                         }
 
-                        <Dialog className="dialogClass"
-                            open={this.state.showDialog}
-                            onClose={(e) => { 
-                                this.setState({showDialog: false, dataUpload: ""
-                            }) }}
-                            aria-labelledby="alert-dialog-title"
-                            aria-describedby="alert-dialog-description"
-                        >
-                            <DialogTitle id="dialogTitleId">
-                                <div id = "dialogTitleDivId">
-                                    <h2 className="dialogTitle"> 
-                                        IMPORT TRADE {this.state.nodeName}
-                                    </h2>
-                                </div>
-                            </DialogTitle>
-                            <input 
-                                type="file" 
-                                name="file" 
-                                style={{ 
-                                    width: "400px",
-                                    margin: "0px 25px 0px 25px"
-                                }} 
-                                onChange={(e) => {
-                                    thisVar.changeUploadedFile(e)}} />
-                            &nbsp;
+                        <div id="tabDiv"
+                            style = {{
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                display: 'flex'
+                            }}>
+                            <Tabs
+                                value={this.state.indexTab}
+                                variant="scrollable"
+                                onChange={(event, valueTab) => { this.setState({ indexTab: valueTab }) }}
+                                TabIndicatorProps={{
+                                    style: {
+                                        background: 'green'
+                                    }
+                                }}>
+                                <Tab label="Trades"
+                                    style={{
+                                        color: "green"
+                                    }}
+                                />
+                                <Tab label="Event History"
+                                    style={{
+                                        color: "green"
+                                    }}
+                                />
+                            </Tabs>
+                        </div>
 
-                            <Button 
-                                variant="contained"
-                                color = "success"
-                                onClick={(e) => { thisVar.startProposal()}}
-                                disabled = {!this.state.dataUpload}style={{
-                                    margin: "0px 25px 25px 25px"
-                                }} 
-                            >
-                                Send
-                            </Button>
-                        </Dialog>
-                        
-                        <TradeTable nodeName={this.state.nodeName} />
+                        {thisVar.state.indexTab === 0 &&
+                            <div id="tradeContent">
+                                <Dialog className="dialogClass"
+                                    open={this.state.showDialog}
+                                    onClose={(e) => {
+                                        this.setState({
+                                            showDialog: false,
+                                            dataUpload: "",
+                                            dataValidation: {}
+                                        })
+                                    }}
+                                    aria-labelledby="alert-dialog-title"
+                                    aria-describedby="alert-dialog-description"
+                                >
+                                    <DialogTitle id="dialogTitleId">
+                                        <div id="dialogTitleDivId">
+                                            <h2 className="dialogTitle">
+                                                Import Trade {this.state.nodeName}
+                                            </h2>
+                                        </div>
+                                    </DialogTitle>
+
+                                    <div className="dialogContent">
+                                        <input
+                                            type="file"
+                                            name="file"
+                                            style={{
+                                                width: "400px"
+                                            }}
+                                            onChange={(e) => {
+                                                thisVar.changeUploadedFile(e)
+                                            }} />
+                                        &nbsp;
+                                        <TextField
+                                            id="outlined-number"
+                                            label="CounterParty"
+                                            value={this.state.dataValidation.optionalInfo || ''}
+                                            InputProps={{
+                                                readOnly: true
+                                            }}
+                                            variant="filled"
+                                        />
+                                        <label style={{
+                                            color: this.state.dataValidation.jsonValidated ? "green" : "red"
+                                        }}>
+                                            {this.state.dataValidation.jsonValidationMessage}
+                                        </label>
+                                        &nbsp;
+                                        <Button
+                                            variant="contained"
+                                            color="success"
+                                            onClick={(e) => { thisVar.startProposal() }}
+                                            disabled={!this.state.dataUpload || !this.state.dataValidation.jsonValidated}
+                                        >
+                                            Send
+                                        </Button>
+                                    </div>
+                                </Dialog>
+
+                                <TradeTable nodeName={this.state.nodeName} />
+                            </div>
+                        }
+                        {thisVar.state.indexTab === 1 &&
+                            <div id="tradeHistory"
+                                style={{
+                                    margin: "25px 25px 0px 25px"
+                                }}>
+                                <TradeTableHistory nodeName={this.state.nodeName} />
+                            </div>}
                     </div>
                 </div>
             </React.Fragment>

@@ -5,24 +5,24 @@ import Nav from "../header/Nav";
 
 function LayoutMenu(props) {
 
-    return (
-      <div className="view">
-              <div className="mainWrapper">
-                  <Sidebar className="sideBar"
-                   history={props.history}/>
-                  
-                  <div className="sidebarMargin">
-                  <div className="SideMarginHeader">
-                      <div className="Header">
-                      <Nav/>
-                      </div>
-                  </div>
-                    <div className="SideMarginChild">
-                        {props.children}
-                    </div>
-                  </div>
-              </div>
+  return (
+    <div className="view">
+      <div className="mainWrapper">
+        <Sidebar className="sideBar"
+          history={props.history} />
+
+        <div className="sidebarMargin">
+          <div className="SideMarginHeader">
+            <div className="Header">
+              <Nav />
+            </div>
+          </div>
+          <div className="SideMarginChild">
+            {props.children}
+          </div>
+        </div>
       </div>
+    </div>
   );
 }
 

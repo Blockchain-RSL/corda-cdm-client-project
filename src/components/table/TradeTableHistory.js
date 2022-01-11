@@ -4,7 +4,6 @@ import React from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
-import BtnCdmAction from '../buttons/BtnCdmAction.js';
 import BtnCdmInfo from '../buttons/BtnCdmInfo.js';
 import SockJsClient from 'react-stomp';
 
@@ -16,10 +15,10 @@ import "./tradeTable.scss";
 import TradeStatesConstants from '../constants/TradeStatesConstants.js';
 
 // constants
-const SOCKET_URL = 'http://188.11.100.59:50001/ws-message';
-//const SOCKET_URL = 'http://localhost:8080/ws-message';
+// const SOCKET_URL = 'http://188.11.100.59:50001/ws-message';
+const SOCKET_URL = 'http://localhost:8080/ws-message';
 
-class TradeTable extends React.Component {
+class TradeTableHistory extends React.Component {
 
   constructor(props) {
     super(props);
@@ -33,18 +32,15 @@ class TradeTable extends React.Component {
       data: []
     };
 
-    this.acceptFunction = this.acceptFunction.bind(this);
-    this.rejectFunction = this.rejectFunction.bind(this);
-    this.loadTradeData = this.loadTradeData.bind(this);
-
-    this.loadTradeData();
+    this.loadTradeDataHistory = this.loadTradeDataHistory.bind(this);
+    this.loadTradeDataHistory();
   }
 
-  async loadTradeData() {
+  async loadTradeDataHistory() {
     AxiosInstance({
-      url: `statesDetail?nodeName=${this.state.nodeName}`
+      url: `statesHistory?nodeName=${this.state.nodeName}`
     }).then((response) => {
-      //console.log("response: ", response.data)
+      console.log("response: ", response.data)
       this.setState({ data: response.data })
     }).catch((error) => {
       console.log("Error into loadTradeData ", error)
@@ -52,34 +48,9 @@ class TradeTable extends React.Component {
     })
   }
 
-  async acceptFunction(linearId) {
-    AxiosInstance({
-      method: 'post',
-      url: `startFlowAcceptProposal?nodeName=${this.state.nodeName}&proposalId=${linearId}`
-    }).then((response) => {
-      //console.log("Response of acceptFunction ", response )
-      //alert("Accepted trade event sent with success")
-    }).catch((error) => {
-      console.log("Error into acceptFunction ", error)
-    })
-  }
-
-  async rejectFunction(linearId) {
-    AxiosInstance({
-      method: 'post',
-      url: `startFlowRejectProposal?nodeName=${this.state.nodeName}&proposalId=${linearId}`
-    }).then((response) => {
-      //console.log("Response of rejectFunction ", response )
-      //alert("Rejected trade event sent with success")
-    }).catch((error) => {
-      console.log("Error into rejectFunction ", error)
-    })
-  }
-
   isObserverOrNotary = () => (this.state.nodeName === "Observer" || this.state.nodeName === "Notary")
 
   render() {
-    var thisVar = this;
 
     const gridOptions = {
 
@@ -107,7 +78,7 @@ class TradeTable extends React.Component {
         },
         {
           headerName: 'Price',
-          field: 'price',
+          field: 'price', 
           width: 100,
           minWidth: 100,
           suppressSizeToFit: false
@@ -130,7 +101,6 @@ class TradeTable extends React.Component {
         {
           headerName: 'From',
           field: 'proposer',
-          hide: !this.isObserverOrNotary(),
           width: 100,
           minWidth: 100,
           suppressSizeToFit: false
@@ -138,7 +108,6 @@ class TradeTable extends React.Component {
         {
           headerName: 'To',
           field: 'proposee',
-          hide: !this.isObserverOrNotary(),
           width: 100,
           minWidth: 100,
           suppressSizeToFit: false
@@ -151,7 +120,6 @@ class TradeTable extends React.Component {
             return date.toLocaleDateString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             //return formatDate(params.value);
           },
-          //flex: 0,
           width: 200,
           minWidth: 200,
           suppressSizeToFit: false
@@ -166,9 +134,7 @@ class TradeTable extends React.Component {
           field: 'cdmJsonBase64',
           cellRenderer: "BtnCdmInfo",
           cellRendererParams(params) {
-            let letEnableToModifyProposal = 
-              params.data.proposer === thisVar.state.nodeName
-              && params.data.tradeStatus == TradeStatesConstants.PROPOSED.name;
+            let letEnableToModifyProposal = false;
             return {
               cdmJsonBase64: params.data.cdmJsonBase64,
               cdmDTO : {
@@ -221,34 +187,14 @@ class TradeTable extends React.Component {
             }
             return null;
           },
-          //flex: 0,
           width: 150,
           minWidth: 150,
-          suppressSizeToFit: false
-        },
-        {
-          headerName: 'Action',
-          field: 'action',
-          cellRenderer: "BtnCdmAction",
-          cellRendererParams(params) {
-            return {
-              acceptFunction: thisVar.acceptFunction,
-              rejectFunction: thisVar.rejectFunction,
-              tradeStatus: params.data.tradeStatus,
-              linearId: params.data.linearId
-            }
-          },
-          //flex: 0,
-          hide: this.isObserverOrNotary(),
-          width: 200,
-          minWidth: 200,
           suppressSizeToFit: false
         }
       ],
 
       // a default column definition with properties that get applied to every column
       defaultColDef: {
-        //flex: 1,
         // make every column editable
         editable: false,
         // make every column use 'text' filter by default
@@ -256,6 +202,7 @@ class TradeTable extends React.Component {
         sortable: true,
         filter: true,
         resizable: true,
+        sizeColumnsToFit: true
       },
 
       // if we had column groups, we could provide default group items here
@@ -267,29 +214,16 @@ class TradeTable extends React.Component {
       },
 
       frameworkComponents: {
-        BtnCdmAction: BtnCdmAction,
         BtnCdmInfo: BtnCdmInfo
-      },
-
-
-      // other grid options ...
-      onGridColumnsChanged(params) {
-        this.gridApi = params.api;
-        this.columnApi = params.columnApi;
-        this.gridApi.sizeColumnsToFit();
-        window.onresize = () => {
-            this.gridApi.sizeColumnsToFit();
-        } 
       },
 
       onGridReady(params) {
         this.gridApi = params.api;
-        this.columnApi = params.columnApi;
-        this.gridApi.sizeColumnsToFit();
-        window.onresize = () => {
-            this.gridApi.sizeColumnsToFit();
-        } 
+        this.gridColumnApi = params.columnApi;   
+        params.api.sizeColumnsToFit(); 
       }
+
+      // other grid options ...
     }
 
     let onConnected = () => {
@@ -297,30 +231,26 @@ class TradeTable extends React.Component {
     }
 
     let onMessageReceived = (msg) => {
-      //let actualData = this.state.data;
-      //actualData.push(JSON.parse(msg.message));
-      //console.log(actualData)
-      //console.log(this.state.data)
-      this.loadTradeData();
+      this.loadTradeDataHistory();
     }
 
     return (
       <React.Fragment>
+        <SockJsClient
+          url={SOCKET_URL}
+          topics={['/topic/message']}
+          onConnect={onConnected}
+          onDisconnect={() => console.log(this.props.nodeName, "Disconnected!")}
+          onMessage={msg => onMessageReceived(msg)}
+          debug={false}
+        />
         <div className="tradeTable">
-          <SockJsClient
-            url={SOCKET_URL}
-            topics={['/topic/message']}
-            onConnect={onConnected}
-            onDisconnect={() => console.log(this.props.nodeName, "Disconnected!")}
-            onMessage={msg => onMessageReceived(msg)}
-            debug={false}
-          />
           <div>{this.state.message}</div>
           <h3 style={{
             textAlignVertical: "center",
             textAlign: "center",
             margin: "25px 0px 25px 0px"
-          }}>Trades</h3>
+          }}>Trades History</h3>
           <div className="ag-theme-alpine" style={{ height: "50vh" }}>
             <AgGridReact class="tradeTableGrid"
               gridOptions={gridOptions}
@@ -333,4 +263,4 @@ class TradeTable extends React.Component {
   }
 }
 
-export default TradeTable;
+export default TradeTableHistory;
