@@ -250,7 +250,7 @@ class TradeTableHistory extends React.Component {
             textAlignVertical: "center",
             textAlign: "center",
             margin: "25px 0px 25px 0px"
-          }}>Trades History</h3>
+          }}></h3>
           <div className="ag-theme-alpine" style={{ height: "50vh" }}>
             <AgGridReact class="tradeTableGrid"
               gridOptions={gridOptions}

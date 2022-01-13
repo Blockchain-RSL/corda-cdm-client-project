@@ -111,7 +111,7 @@ class CdmInfoDialog extends Component {
                                     color: "green"
                                 }}
                             />
-                            <Tab label="Details"
+                            <Tab label="Party & Details"
                                 style={{
                                     color: "green"
                                 }}
@@ -249,6 +249,19 @@ class CdmInfoDialog extends Component {
                                 style={{
                                     margin: "20px 0px 20px 0px",
                                 }}
+                                id="outlined-linearId"
+                                label="linearId"
+                                value={this.cdmDTO.linearId || ''}
+                                InputProps={{
+                                    readOnly: true
+                                }}
+                                variant="filled"
+                                fullWidth
+                            />
+                            <TextField
+                                style={{
+                                    margin: "20px 0px 20px 0px",
+                                }}
                                 id="outlined-contractualDefinition"
                                 label="Contractual definition"
                                 value={this.cdmDTO.contractualDefinition || ''}
@@ -281,6 +294,9 @@ class CdmInfoDialog extends Component {
                             }}>
                             <img
                                 className="downloadIcon"
+                                style={{
+                                    margin: "0px 0px 25px 0px",
+                                }}
                                 src={downloadIcon}
                                 alt="downloadIcon"
                                 onClick={() => this.downloadTxtFile()}

@@ -40,7 +40,7 @@ class Dashboard extends React.Component {
                     margin: "25px 25px 0px 25px"
                 }}>
                 <h2 className="titleStyle"
-                >Welcome to CDM Corda project
+                > Network Dashboard
                 </h2>
                 <NodesStatusTable />
             </div>

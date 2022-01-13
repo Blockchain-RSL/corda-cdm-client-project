@@ -27,7 +27,7 @@ class NodeDashboard extends React.Component {
 
         this.state = {
             nodeName: this.props.nodeName,
-            info: [],
+            info: {},
             showDialog: false,
             dataUpload: "",
             dataValidation: {},
@@ -101,7 +101,11 @@ class NodeDashboard extends React.Component {
             console.log("Error into startProposal ", error)
         })
 
-        this.setState({ showDialog: false })
+        this.setState({
+            showDialog: false,
+            dataUpload: "",
+            dataValidation: {}
+        })
     }
 
     async loadNodeInfo() {
@@ -123,13 +127,26 @@ class NodeDashboard extends React.Component {
                     style={{ height: "100%" }}>
                     <h2 className="titleStyle"
                         style={{ fontSize: "5vh" }}
-                    >Node {this.state.nodeName} Dashboard</h2>
+                    >{this.state.nodeName} Dashboard</h2>
                     &nbsp;
                     <h1 className="titleStyle"
                         style={{
-                            fontSize: "3vh"
+                            fontSize: "3vh",
+                            margin: "10px 0px 50px 0px"
                         }}>
-                        {this.state.info}
+                        Name: <b>{this.state.info.name}</b>
+                        &nbsp;
+                        &nbsp;
+                        &nbsp;
+                        &nbsp;
+                        &nbsp;
+                         City: <b>{this.state.info.city}</b>
+                        &nbsp;
+                        &nbsp;
+                        &nbsp;
+                        &nbsp;
+                        &nbsp;
+                         Country: <b>{this.state.info.country}</b>
                     </h1>
 
                     <div className="nodeContent"
@@ -145,12 +162,12 @@ class NodeDashboard extends React.Component {
                                 color="success"
                                 onClick={(e) => { this.setState({ showDialog: true }) }}
                             >
-                                Import Trade
+                                Import CDM
                             </Button>
                         }
 
                         <div id="tabDiv"
-                            style = {{
+                            style={{
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 display: 'flex'
@@ -177,73 +194,70 @@ class NodeDashboard extends React.Component {
                             </Tabs>
                         </div>
 
+                        <Dialog className="dialogClass"
+                            open={this.state.showDialog}
+                            onClose={(e) => {
+                                this.setState({
+                                    showDialog: false,
+                                    dataUpload: "",
+                                    dataValidation: {}
+                                })
+                            }}
+                            aria-labelledby="alert-dialog-title"
+                            aria-describedby="alert-dialog-description"
+                        >
+                            <DialogTitle id="dialogTitleId">
+                                <div id="dialogTitleDivId">
+                                    <h2 className="dialogTitle">
+                                        Import CDM - {this.state.nodeName}
+                                    </h2>
+                                </div>
+                            </DialogTitle>
+
+                            <div className="dialogContent">
+                                <input
+                                    type="file"
+                                    name="file"
+                                    style={{
+                                        width: "400px"
+                                    }}
+                                    onChange={(e) => {
+                                        thisVar.changeUploadedFile(e)
+                                    }} />
+                                &nbsp;
+                                <TextField
+                                    id="outlined-number"
+                                    label="CounterParty"
+                                    value={this.state.dataValidation.optionalInfo || ''}
+                                    InputProps={{
+                                        readOnly: true
+                                    }}
+                                    variant="filled"
+                                />
+                                <label style={{
+                                    color: this.state.dataValidation.jsonValidated ? "green" : "red"
+                                }}>
+                                    {this.state.dataValidation.jsonValidationMessage}
+                                </label>
+                                &nbsp;
+                                <Button
+                                    variant="contained"
+                                    color="success"
+                                    onClick={(e) => { thisVar.startProposal() }}
+                                    disabled={!this.state.dataUpload || !this.state.dataValidation.jsonValidated}
+                                >
+                                    Send
+                                </Button>
+                            </div>
+                        </Dialog>
+
                         {thisVar.state.indexTab === 0 &&
                             <div id="tradeContent">
-                                <Dialog className="dialogClass"
-                                    open={this.state.showDialog}
-                                    onClose={(e) => {
-                                        this.setState({
-                                            showDialog: false,
-                                            dataUpload: "",
-                                            dataValidation: {}
-                                        })
-                                    }}
-                                    aria-labelledby="alert-dialog-title"
-                                    aria-describedby="alert-dialog-description"
-                                >
-                                    <DialogTitle id="dialogTitleId">
-                                        <div id="dialogTitleDivId">
-                                            <h2 className="dialogTitle">
-                                                Import Trade {this.state.nodeName}
-                                            </h2>
-                                        </div>
-                                    </DialogTitle>
-
-                                    <div className="dialogContent">
-                                        <input
-                                            type="file"
-                                            name="file"
-                                            style={{
-                                                width: "400px"
-                                            }}
-                                            onChange={(e) => {
-                                                thisVar.changeUploadedFile(e)
-                                            }} />
-                                        &nbsp;
-                                        <TextField
-                                            id="outlined-number"
-                                            label="CounterParty"
-                                            value={this.state.dataValidation.optionalInfo || ''}
-                                            InputProps={{
-                                                readOnly: true
-                                            }}
-                                            variant="filled"
-                                        />
-                                        <label style={{
-                                            color: this.state.dataValidation.jsonValidated ? "green" : "red"
-                                        }}>
-                                            {this.state.dataValidation.jsonValidationMessage}
-                                        </label>
-                                        &nbsp;
-                                        <Button
-                                            variant="contained"
-                                            color="success"
-                                            onClick={(e) => { thisVar.startProposal() }}
-                                            disabled={!this.state.dataUpload || !this.state.dataValidation.jsonValidated}
-                                        >
-                                            Send
-                                        </Button>
-                                    </div>
-                                </Dialog>
-
                                 <TradeTable nodeName={this.state.nodeName} />
                             </div>
                         }
                         {thisVar.state.indexTab === 1 &&
-                            <div id="tradeHistory"
-                                style={{
-                                    margin: "25px 25px 0px 25px"
-                                }}>
+                            <div id="tradeHistory">
                                 <TradeTableHistory nodeName={this.state.nodeName} />
                             </div>}
                     </div>
