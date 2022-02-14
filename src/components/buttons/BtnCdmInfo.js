@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 
 // components
 import Button from "react-bootstrap/Button";
@@ -8,53 +8,46 @@ import CdmInfoDialog from "../dialog/CdmInfoDialog";
 import '../layout/dialog.scss';
 import '../layout/icon.scss';
 
-class BtnCdmInfo extends Component {
+function BtnCdmInfo(props) {
 
-    constructor(props) {
-        super(props);
-        //console.log(cdmJson);
-        this.cdmJson = Buffer.from(this.props.cdmJsonBase64, "base64").toString(); 
-        this.cdmDTO = this.props.cdmDTO;
-        this.enableToModifyProposal = this.props.enableToModifyProposal;
+    //console.log(cdmJson);
+    const cdmJson = Buffer.from(props.cdmJsonBase64, "base64").toString(); 
+    const cdmDTO = props.cdmDTO;
+    const nodeName = props.nodeName;
+    const tradeStatus = props.tradeStatus;
 
-        this.state = {
-            showDialog: false
-        }
+    const [showDialog, setShowDialog] = useState(false);
+        
+    const closeDialog = () => {
+        setShowDialog(false);
     }
 
-    closeDialog = () => {
-        this.setState({showDialog : false})
-    }
-
-    render() {
-        return (
-            <React.Fragment>
-                <div className="btnDiv">
-                    <Button
-                        variant="outline-primary"
-                        onClick={() => this.setState({
-                            showDialog: true
-                        })}
-                        style={{
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            fontWeight: "bold",
-                            margin: "0px 0px 4px 0px"
-                        }}>
-                        Info
-                    </Button>
-                </div>
-                {
-                    this.state.showDialog &&
-                        <CdmInfoDialog 
-                            closeDialog = {this.closeDialog}
-                            cdmJson = {this.cdmJson}
-                            cdmDTO = {this.cdmDTO}
-                            enableToModifyProposal = {this.enableToModifyProposal}/>
-                }
-            </React.Fragment>
-        )
-    }
+    return (
+        <React.Fragment>
+            <div className="btnDiv">
+                <Button
+                    variant="outline-primary"
+                    onClick={() => { setShowDialog(true) }}
+                    style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        fontWeight: "bold",
+                        margin: "0px 0px 4px 0px"
+                    }}>
+                    Info
+                </Button>
+            </div>
+            {
+                showDialog &&
+                    <CdmInfoDialog 
+                        closeDialog = {closeDialog}
+                        cdmJson = {cdmJson}
+                        cdmDTO = {cdmDTO}
+                        nodeName = {nodeName}
+                        tradeStatus = {tradeStatus}/>
+            }
+        </React.Fragment>
+    );
 }
 
 export default BtnCdmInfo;

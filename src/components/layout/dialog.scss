@@ -15,3 +15,40 @@
     //justify-content: center;
     margin: 25px 25px 25px 25px;
 }
+
+.dialogContentInput{
+    width: 400px;
+}
+
+.dialogContent__tab {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.dialogContent__tabDetail {
+    padding: 25px 25px 25px 25px;
+}
+
+.dialogContent__cdmJsonTab {
+    margin: 25px 25px 25px 25px;
+}
+
+.downloadIcon {
+    height: 50px;
+    width: 50px;
+    margin: 0px 0px 25px 0px;
+}
+
+.dialogContent__jsonContent {
+    border: 1px solid;
+    border-radius: 25px;
+}
+
+.dialogContent__bottomButton {
+    display: flex;
+    align-items: right;
+    justify-content: right;
+    font-weight: bold;
+    margin: 0px 25px 25px 25px;
+}

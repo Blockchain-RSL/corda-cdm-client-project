@@ -9,20 +9,19 @@ import NodesStatusTable from '../components/table/NodesStatusTable'
 // css
 import './dashboard.scss';
 
-class Dashboard extends React.Component {
+function Dashboard() {
 
-    constructor(props) {
+    /*constructor(props) {
         super(props);
 
         this.state = {
             nodeInfo: []
         };
 
-        this.loadNodeInfo = this.loadNodeInfo.bind(this);
-        //this.loadNodeInfo();
-    }
+        //this.loadNodeInfo = this.loadNodeInfo.bind(this);
+    }*/
 
-    async loadNodeInfo() {
+    /*async loadNodeInfo() {
         AxiosInstance({
             url: `peers?nodeName=Observer`
         }).then((response) => {
@@ -31,21 +30,16 @@ class Dashboard extends React.Component {
         }).catch((error) => {
             console.log("Error into loadNodeInfo ", error)
         })
-    }
+    }*/
 
-    render() {
-        return (
-            <div className="app"
-                style={{
-                    margin: "25px 25px 0px 25px"
-                }}>
-                <h2 className="titleStyle"
-                > Network Dashboard
-                </h2>
-                <NodesStatusTable />
-            </div>
-        );
-    }
+    return (
+        <div className="app">
+            <h2 className="titleStyle">
+                Network Dashboard
+            </h2>
+            <NodesStatusTable />
+        </div>
+    );
 }
 
 

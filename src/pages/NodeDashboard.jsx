@@ -3,22 +3,17 @@ import React from 'react';
 // components
 import TradeTable from '../components/table/TradeTable';
 import TradeTableHistory from '../components/table/TradeTableHistory';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
+import CdmImportDialog from '../components/dialog/CdmImportDialog';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 
 // css
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './nodeDashboard.scss';
-import '../components/layout/dialog.scss';
 
 // lib
 import AxiosInstance from '../axios/AxiosInstance';
-import { encode as base64_encode } from 'base-64';
-
 
 class NodeDashboard extends React.Component {
 
@@ -29,14 +24,11 @@ class NodeDashboard extends React.Component {
             nodeName: this.props.nodeName,
             info: {},
             showDialog: false,
-            dataUpload: "",
-            dataValidation: {},
             indexTab: 0,
         };
 
-        this.changeUploadedFile = this.changeUploadedFile.bind(this);
         this.loadNodeInfo = this.loadNodeInfo.bind(this);
-        this.startProposal = this.startProposal.bind(this);
+        this.handleShowDialog = this.handleShowDialog.bind(this);
 
         this.loadNodeInfo();
     }
@@ -48,66 +40,13 @@ class NodeDashboard extends React.Component {
         };
     }
 
-    convertFileIntoBase64(text) {
-        return base64_encode(text);;
+    // handles the flag to show import CDM dialog
+    handleShowDialog = () => {
+        this.setState({showDialog: false});
+        console.log("showDialog nodeDashboard " + this.state.showDialog);
     }
 
-    convertFileIntoBase64andZip(text) {
-        return new Promise((resolve, reject) => {
-            let encodedFile = base64_encode(text);
-            var JSZip = require("jszip");
-            var zip = new JSZip();
-            resolve(
-                zip.file("ile", encodedFile, { binary: true })
-            );
-        });
-    }
-
-    async changeUploadedFile(e) {
-        e.preventDefault()
-        const reader = new FileReader()
-        reader.onload = async (e) => {
-
-            const text = (e.target.result)
-            AxiosInstance({
-                method: "post",
-                url: `validateCDMJson`,
-                data: this.convertFileIntoBase64(text)
-            }).then((response) => {
-                this.setState({ dataUpload: text })
-                this.setState({ dataValidation: response.data })
-                //console.log("validateCDMJson", response.data)
-            }).catch((error) => {
-                alert("Imported trade sent with error")
-                console.log("Error into validateCDMJson ", error)
-            })
-        };
-        reader.readAsText(e.target.files[0])
-    }
-
-    async startProposal() {
-        //console.log("startProposal", this.state.dataUpload)
-        let cdmFile = this.state.dataUpload;
-
-        AxiosInstance({
-            method: "post",
-            url: `startFlowProposal/?nodeName=${this.state.nodeName}`,
-            data: this.convertFileIntoBase64(cdmFile)
-        }).then((response) => {
-            //alert("Imported trade sent with success")
-            //console.log("response startProposal: ", response)
-        }).catch((error) => {
-            alert("Imported trade sent with error")
-            console.log("Error into startProposal ", error)
-        })
-
-        this.setState({
-            showDialog: false,
-            dataUpload: "",
-            dataValidation: {}
-        })
-    }
-
+    
     async loadNodeInfo() {
         AxiosInstance({
             url: `info?nodeName=${this.state.nodeName}`
@@ -123,17 +62,10 @@ class NodeDashboard extends React.Component {
         var thisVar = this;
         return (
             <React.Fragment>
-                <div className="nodeDashboard"
-                    style={{ height: "100%" }}>
-                    <h2 className="titleStyle"
-                        style={{ fontSize: "5vh" }}
-                    >{this.state.nodeName} Dashboard</h2>
+                <div className="nodeDashboard">
+                    <h2 className="titleStyle">{this.state.nodeName} Dashboard</h2>
                     &nbsp;
-                    <h1 className="titleStyle"
-                        style={{
-                            fontSize: "3vh",
-                            margin: "10px 0px 50px 0px"
-                        }}>
+                    <h1 className="titleStyleNode">
                         Name: <b>{this.state.info.name}</b>
                         &nbsp;
                         &nbsp;
@@ -149,12 +81,7 @@ class NodeDashboard extends React.Component {
                          Country: <b>{this.state.info.country}</b>
                     </h1>
 
-                    <div className="nodeContent"
-                        style={{
-                            margin: "25px 25px 0px 25px"
-                        }}>
-
-
+                    <div className="nodeContent">
                         {
                             (this.state.nodeName !== "Observer" && this.state.nodeName !== "Notary") && //then                                
                             <Button
@@ -166,12 +93,7 @@ class NodeDashboard extends React.Component {
                             </Button>
                         }
 
-                        <div id="tabDiv"
-                            style={{
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                display: 'flex'
-                            }}>
+                        <div className="tabDiv" id="tabDiv">
                             <Tabs
                                 value={this.state.indexTab}
                                 variant="scrollable"
@@ -194,62 +116,12 @@ class NodeDashboard extends React.Component {
                             </Tabs>
                         </div>
 
-                        <Dialog className="dialogClass"
-                            open={this.state.showDialog}
-                            onClose={(e) => {
-                                this.setState({
-                                    showDialog: false,
-                                    dataUpload: "",
-                                    dataValidation: {}
-                                })
-                            }}
-                            aria-labelledby="alert-dialog-title"
-                            aria-describedby="alert-dialog-description"
-                        >
-                            <DialogTitle id="dialogTitleId">
-                                <div id="dialogTitleDivId">
-                                    <h2 className="dialogTitle">
-                                        Import CDM - {this.state.nodeName}
-                                    </h2>
-                                </div>
-                            </DialogTitle>
-
-                            <div className="dialogContent">
-                                <input
-                                    type="file"
-                                    name="file"
-                                    style={{
-                                        width: "400px"
-                                    }}
-                                    onChange={(e) => {
-                                        thisVar.changeUploadedFile(e)
-                                    }} />
-                                &nbsp;
-                                <TextField
-                                    id="outlined-number"
-                                    label="CounterParty"
-                                    value={this.state.dataValidation.optionalInfo || ''}
-                                    InputProps={{
-                                        readOnly: true
-                                    }}
-                                    variant="filled"
-                                />
-                                <label style={{
-                                    color: this.state.dataValidation.jsonValidated ? "green" : "red"
-                                }}>
-                                    {this.state.dataValidation.jsonValidationMessage}
-                                </label>
-                                &nbsp;
-                                <Button
-                                    variant="contained"
-                                    color="success"
-                                    onClick={(e) => { thisVar.startProposal() }}
-                                    disabled={!this.state.dataUpload || !this.state.dataValidation.jsonValidated}
-                                >
-                                    Send
-                                </Button>
-                            </div>
-                        </Dialog>
+                        {this.state.showDialog &&
+                            <CdmImportDialog
+                                handleShowDialog={this.handleShowDialog}
+                                nodeName={this.state.nodeName}
+                            />
+                        }
 
                         {thisVar.state.indexTab === 0 &&
                             <div id="tradeContent">

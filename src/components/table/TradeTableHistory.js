@@ -134,7 +134,7 @@ class TradeTableHistory extends React.Component {
           field: 'cdmJsonBase64',
           cellRenderer: "BtnCdmInfo",
           cellRendererParams(params) {
-            let letEnableToModifyProposal = false;
+            let letEnableToModifyProposal = false; //è necessaria?
             return {
               cdmJsonBase64: params.data.cdmJsonBase64,
               cdmDTO : {
@@ -179,16 +179,26 @@ class TradeTableHistory extends React.Component {
                 color: TradeStatesConstants.PROPOSED.color,
                 fontWeight: "bold"
               };
+            } else if (params.value === TradeStatesConstants.COUNTERPROPOSED.name) {
+                return {
+                  color: TradeStatesConstants.COUNTERPROPOSED.color,
+                  fontWeight: "bold"
+                };
             } else if (params.value === TradeStatesConstants.INCOMING.name) {
               return {
                 color: TradeStatesConstants.INCOMING.color,
                 fontWeight: "bold"
               };
+            } else if (params.value === TradeStatesConstants.INCOMING_COUNTERPROPOSAL.name) {
+                return {
+                  color: TradeStatesConstants.INCOMING_COUNTERPROPOSAL.color,
+                  fontWeight: "bold"
+                };
             }
             return null;
           },
-          width: 150,
-          minWidth: 150,
+          width: 280,
+          minWidth: 280,
           suppressSizeToFit: false
         }
       ],
@@ -246,11 +256,7 @@ class TradeTableHistory extends React.Component {
         />
         <div className="tradeTable">
           <div>{this.state.message}</div>
-          <h3 style={{
-            textAlignVertical: "center",
-            textAlign: "center",
-            margin: "25px 0px 25px 0px"
-          }}></h3>
+          <h3 className="tradeTableTitle"></h3>
           <div className="ag-theme-alpine" style={{ height: "50vh" }}>
             <AgGridReact class="tradeTableGrid"
               gridOptions={gridOptions}

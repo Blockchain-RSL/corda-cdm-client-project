@@ -1,7 +1,10 @@
 .barParent {
     margin: 0px 0px 25px 0px;
     width: 100%;
+    display: flex;
     justify-content: center;
+    align-items: center;
+    background: linear-gradient( rgb(43, 136, 4),rgb(66, 149, 31));
 }
 
 .barParentNavEth {

@@ -11,8 +11,16 @@ const TradeStatesConstants = {
                 "name": "PROPOSED",
                 "color": "blue"
         },
+        "COUNTERPROPOSED": {
+                "name": "COUNTERPROPOSED",
+                "color": "purple"
+        },   
         "INCOMING": {
                 "name": "INCOMING",
+                "color": "black"
+        },
+        "INCOMING_COUNTERPROPOSAL": {
+                "name": "INCOMING_COUNTERPROPOSAL",
                 "color": "black"
         }
 }

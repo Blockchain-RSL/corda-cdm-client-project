@@ -1,9 +1,9 @@
 import React from 'react';
 
-const NotFound = props => {
+const NotFound = () => {
     return (
         <div className="not found">
-            <p>You took a wrong turn, mate.</p>
+            <h1>You took a wrong turn, mate.</h1>
         </div>
     );
 };

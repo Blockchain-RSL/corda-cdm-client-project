@@ -19,6 +19,9 @@ import AxiosInstance from "../../axios/AxiosInstance";
 // resources
 import downloadIcon from '../../resources/download_icon.png';
 
+//constants
+import TradeStatesConstants from '../constants/TradeStatesConstants.js';
+
 class CdmInfoDialog extends Component {
     constructor(props) {
         super(props);
@@ -26,7 +29,13 @@ class CdmInfoDialog extends Component {
         this.closeDialog = this.props.closeDialog;
         this.cdmJson = this.props.cdmJson;
         this.cdmDTO = this.props.cdmDTO;
-        this.enableToModifyProposal = this.props.enableToModifyProposal;
+        this.nodeName = this.props.nodeName;
+        this.tradeStatus = this.props.tradeStatus;
+        this.enableToModifyProposal = this.props.cdmDTO.proposer === this.props.nodeName
+                                        && this.props.tradeStatus == TradeStatesConstants.PROPOSED.name;
+        this.enableToCounterproposal = this.props.cdmDTO.proposee === this.props.nodeName
+                                        && this.props.tradeStatus == TradeStatesConstants.INCOMING.name;
+
 
         this.state = {
             indexTab: 0,
@@ -37,7 +46,9 @@ class CdmInfoDialog extends Component {
         this.closeDialog = this.props.closeDialog;
 
         this.modificationFunction = this.modificationFunction.bind(this);
+        this.counterproposalFunction = this.counterproposalFunction.bind(this);
     }
+
 
     downloadTxtFile = () => {
         const element = document.createElement("a");
@@ -68,6 +79,26 @@ class CdmInfoDialog extends Component {
         this.closeDialog();
     }
 
+    async counterproposalFunction() {
+        let linearId, quantity, price;
+        linearId = this.cdmDTO.linearId;
+        quantity = this.state.quantity;
+        price = this.state.price;
+
+        AxiosInstance({
+            method: 'post',
+            url: `startFlowCounterproposal?nodeName=${this.cdmDTO.proposee}&quantity=${quantity}&price=${price}&proposalId=${linearId}`
+        }).then((response) => {
+            //console.log("Response of acceptFunction ", response )
+            //alert("Modification trade event sent with success")
+        }).catch((error) => {
+            console.log("Error into counterproposalFunction ", error)
+            alert("Counterproposal trade event sent with error ", error)
+        })
+
+        this.closeDialog();
+    }
+
     render() {
         return (
             <Dialog className="dialogClass"
@@ -87,11 +118,7 @@ class CdmInfoDialog extends Component {
                 </DialogTitle>
 
                 <div id="dialogContent">
-                    <div id="tabDiv" style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        display: 'flex'
-                    }}>
+                    <div className="dialogContent__tab" id="tabDiv">
                         <Tabs
                             value={this.state.indexTab}
                             variant="scrollable"
@@ -125,11 +152,7 @@ class CdmInfoDialog extends Component {
                     </div>
 
                     {this.state.indexTab === 0 &&
-                        <div id="cdmDetailTab"
-                            style={{
-                                padding: "25px 25px 25px 25px",
-                            }}
-                        >
+                        <div className="dialogContent__tabDetail" id="cdmDetailTab">
                             <TextField
                                 style={{
                                     margin: "20px 0px 20px 0px",
@@ -165,9 +188,9 @@ class CdmInfoDialog extends Component {
                                 value={this.state.price}
                                 onChange={(e) => this.setState({ price: e.target.value })}
                                 InputProps={{
-                                    readOnly: !this.enableToModifyProposal
+                                    readOnly: !(this.enableToModifyProposal || this.enableToCounterproposal)
                                 }}
-                                variant={!this.enableToModifyProposal ? "filled" : "standard"}
+                                variant={!(this.enableToModifyProposal || this.enableToCounterproposal) ? "filled" : "standard"}
                                 fullWidth
                             />
                             <TextField
@@ -179,9 +202,9 @@ class CdmInfoDialog extends Component {
                                 value={this.state.quantity}
                                 onChange={(e) => this.setState({ quantity: e.target.value })}
                                 InputProps={{
-                                    readOnly: !this.enableToModifyProposal
+                                    readOnly: !(this.enableToModifyProposal || this.enableToCounterproposal)
                                 }}
-                                variant={!this.enableToModifyProposal ? "filled" : "standard"}
+                                variant={!(this.enableToModifyProposal || this.enableToCounterproposal) ? "filled" : "standard"}
                                 fullWidth
                             />
                             <TextField
@@ -214,11 +237,7 @@ class CdmInfoDialog extends Component {
                     }
 
                     {this.state.indexTab === 1 &&
-                        <div id="cdmDetailTab"
-                            style={{
-                                padding: "25px 25px 25px 25px",
-                            }}
-                        >
+                        <div className="dialogContent__tabDetail" id="cdmDetailTab">
                             <TextField
                                 style={{
                                     margin: "20px 0px 20px 0px",
@@ -288,25 +307,15 @@ class CdmInfoDialog extends Component {
                     }
 
                     {this.state.indexTab === 2 &&
-                        <div id="cdmJsonTab"
-                            style={{
-                                margin: "25px 25px 25px 25px",
-                            }}>
+                        <div className="dialogContent__cdmJsonTab" id="cdmJsonTab">
                             <img
                                 className="downloadIcon"
-                                style={{
-                                    margin: "0px 0px 25px 0px",
-                                }}
                                 src={downloadIcon}
                                 alt="downloadIcon"
                                 onClick={() => this.downloadTxtFile()}
                             />
                             &nbsp;
-                            <div id="jsonContent"
-                                style={{
-                                    border: "1px solid",
-                                    borderRadius: "25px"
-                                }}>
+                            <div className="dialogContent__jsonContent" id="jsonContent">
                                 <JSONPretty
                                     id="json-pretty"
                                     mainStyle="padding: 25px 25px 25px 25px"
@@ -316,15 +325,7 @@ class CdmInfoDialog extends Component {
                         </div>
                     }
 
-                    <div id="bottomButton"
-                        style={{
-                            display: "flex",
-                            alignItems: 'right',
-                            justifyContent: 'right',
-                            fontWeight: "bold",
-                            margin: "0px 25px 25px 25px"
-                        }}
-                    >
+                    <div className="dialogContent__bottomButton" id="bottomButton">
                         <Button
                             variant="danger"
                             onClick={this.closeDialog}
@@ -332,15 +333,28 @@ class CdmInfoDialog extends Component {
                             Cancel
                         </Button >
                         &nbsp;
-                        <Button
-                            variant="success"
-                            onClick={this.modificationFunction}
-                            disabled={
-                                this.cdmDTO.price == this.state.price &&
-                                this.cdmDTO.quantity == this.state.quantity
-                            }>
-                            Update
-                        </Button>
+                        {this.enableToModifyProposal &&
+                            <Button
+                                variant="success"
+                                onClick={this.modificationFunction}
+                                disabled={
+                                    this.cdmDTO.price == this.state.price &&
+                                    this.cdmDTO.quantity == this.state.quantity
+                                }>
+                                Update
+                            </Button>
+                        }
+                        {this.enableToCounterproposal &&
+                            <Button
+                                variant="success"
+                                onClick={this.counterproposalFunction}
+                                disabled={
+                                    this.cdmDTO.price == this.state.price &&
+                                    this.cdmDTO.quantity == this.state.quantity
+                                }>
+                                CounterPropose
+                            </Button>
+                        }
                     </div>
 
                 </div>
@@ -348,6 +362,5 @@ class CdmInfoDialog extends Component {
         );
     }
 }
-
 
 export default CdmInfoDialog;

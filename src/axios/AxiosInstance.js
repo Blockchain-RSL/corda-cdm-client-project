@@ -8,8 +8,8 @@ function getUrlByEnv() {
 
   switch (envs) {
     case "LOCAL":
-      //serverUrl = "http://localhost:8080/";
-      serverUrl = "http://188.11.100.59:50001/";
+      serverUrl = "http://localhost:8080/";
+      //serverUrl = "http://188.11.100.59:50001/";
       break;
     case "SVIA":
       break;

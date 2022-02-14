@@ -28,16 +28,19 @@ class NodesStatusTable extends React.Component {
     this.loadNodeInfo();
   }
 
+  // load info about all node
   async loadNodeInfo() {
+    console.log('sono dentro a loadNodeInfo')
     AxiosInstance({
       url: `allNodesInfo`
     }).then((response) => {
-      //console.log("response: ", response.data)
+      console.log("response: ", response.data)
       this.setState({ data: response.data })
     }).catch((error) => {
       console.log("Error into loadNodeInfo ", error)
       this.setState({ data: [] })
     })
+    console.log("finito il load")
   }
 
   render() {
@@ -99,12 +102,7 @@ class NodesStatusTable extends React.Component {
     return (
       <React.Fragment>
         <div className="tradeTable">
-          <div>{this.state.message}</div>
-          <h3 style={{
-            textAlignVertical: "center",
-            textAlign: "center",
-            margin: "25px 0px 25px 0px"
-          }}>Nodes Status</h3>
+          <h3 className="tradeTableTitle">Nodes Status</h3>
           <div className="ag-theme-alpine" style={{ height: "261px" }}>
             <AgGridReact class="tradeTableGrid"
               gridOptions={gridOptions}

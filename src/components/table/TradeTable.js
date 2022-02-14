@@ -13,11 +13,12 @@ import AxiosInstance from "../../axios/AxiosInstance";
 
 // css
 import "./tradeTable.scss";
-import TradeStatesConstants from '../constants/TradeStatesConstants.js';
 
 // constants
-const SOCKET_URL = 'http://188.11.100.59:50001/ws-message';
-//const SOCKET_URL = 'http://localhost:8080/ws-message';
+import TradeStatesConstants from '../constants/TradeStatesConstants.js';
+
+//const SOCKET_URL = 'http://188.11.100.59:50001/ws-message';
+const SOCKET_URL = 'http://localhost:8080/ws-message';
 
 class TradeTable extends React.Component {
 
@@ -52,6 +53,7 @@ class TradeTable extends React.Component {
     })
   }
 
+  // http call that starts the acceptFlow on corda node
   async acceptFunction(linearId) {
     AxiosInstance({
       method: 'post',
@@ -64,6 +66,7 @@ class TradeTable extends React.Component {
     })
   }
 
+  // http call that starts the rejectFlow on corda node
   async rejectFunction(linearId) {
     AxiosInstance({
       method: 'post',
@@ -166,9 +169,6 @@ class TradeTable extends React.Component {
           field: 'cdmJsonBase64',
           cellRenderer: "BtnCdmInfo",
           cellRendererParams(params) {
-            let letEnableToModifyProposal = 
-              params.data.proposer === thisVar.state.nodeName
-              && params.data.tradeStatus == TradeStatesConstants.PROPOSED.name;
             return {
               cdmJsonBase64: params.data.cdmJsonBase64,
               cdmDTO : {
@@ -186,7 +186,8 @@ class TradeTable extends React.Component {
                 masterAgreement: params.data.masterAgreement,
                 linearId: params.data.linearId
               },
-              enableToModifyProposal: letEnableToModifyProposal 
+              nodeName: thisVar.state.nodeName,
+              tradeStatus: params.data.tradeStatus,
             }
           },
           width: 100,
@@ -213,17 +214,27 @@ class TradeTable extends React.Component {
                 color: TradeStatesConstants.PROPOSED.color,
                 fontWeight: "bold"
               };
+            } else if (params.value === TradeStatesConstants.COUNTERPROPOSED.name) {
+               return {
+                 color: TradeStatesConstants.COUNTERPROPOSED.color,
+                 fontWeight: "bold"
+               };
             } else if (params.value === TradeStatesConstants.INCOMING.name) {
               return {
                 color: TradeStatesConstants.INCOMING.color,
                 fontWeight: "bold"
               };
+            } else if (params.value === TradeStatesConstants.INCOMING_COUNTERPROPOSAL.name) {
+               return {
+                 color: TradeStatesConstants.INCOMING_COUNTERPROPOSAL.color,
+                 fontWeight: "bold"
+               };
             }
             return null;
           },
           //flex: 0,
-          width: 150,
-          minWidth: 150,
+          width: 280,
+          minWidth: 280,
           suppressSizeToFit: false
         },
         {
@@ -235,7 +246,21 @@ class TradeTable extends React.Component {
               acceptFunction: thisVar.acceptFunction,
               rejectFunction: thisVar.rejectFunction,
               tradeStatus: params.data.tradeStatus,
-              linearId: params.data.linearId
+              cdmDTO : {
+                instrument : params.data.instrument,
+                instrumentType : params.data.instrumentType,
+                price : params.data.price,
+                quantity: params.data.quantity,
+                currency: params.data.currency,
+                market: params.data.market,
+                proposer: params.data.proposer,
+                proposerId: params.data.proposerId,
+                proposee: params.data.proposee,
+                proposeeId: params.data.proposeeId,
+                contractualDefinition: params.data.contractualDefinition,
+                masterAgreement: params.data.masterAgreement,
+                linearId: params.data.linearId
+              },
             }
           },
           //flex: 0,
@@ -316,12 +341,8 @@ class TradeTable extends React.Component {
             debug={false}
           />
           <div>{this.state.message}</div>
-          <h3 style={{
-            textAlignVertical: "center",
-            textAlign: "center",
-            margin: "25px 0px 25px 0px"
-          }}></h3>
-          <div className="ag-theme-alpine" style={{ height: "50vh" }}>
+          <h3 className="tradeTableTitle"></h3> 
+          <div className="ag-theme-alpine" style={{ height: "50vh"}}>
             <AgGridReact class="tradeTableGrid"
               gridOptions={gridOptions}
               rowData={this.state.data}>
